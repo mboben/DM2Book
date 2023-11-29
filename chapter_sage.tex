@@ -205,7 +205,7 @@ For example to get a list of all graphs on 7 vertices with diameter 5.
     G = Graph({0:[1,2,3], 4:[0,2], 6:[1,2,3,4,5]});
 \end{sageCell}
 
-\subsubsection{Access edges, verices, neighbors, etc.}
+\subsubsection*{Access edges, verices, neighbors, etc.}
 
 Access edges.
 \begin{sageCell}
@@ -268,21 +268,13 @@ Access number of vertices, edges
     [7,10]
 \end{outCell}
 
-Vertices of a graph can be any hashable objects, not just integers. For example:
-\begin{sageCell}
-    X=Graph({'A':[1,2],'B':[(1,2),5,'A']})
-    X.plot()
-\end{sageCell}
-\begin{outImage}
-    \includegraphics[width=8cm]{Images/Introduction/output_hashable.png}
-\end{outImage}
+\subsubsection*{Add/remove vertices, edges}
 
-\subsubsection{Add/remove vertices, edges}
-
-Add a vertex.
+Add a vertex. Note that the vertices of a graph can be any \emph{hashable} objects, not just integers.
 \begin{sageCell}
     G.add_vertex('a')
 \end{sageCell}
+
 
 Method \verb|add_vertex| without arguments adds a single vertex with the smallest available label.
 \begin{sageCell}
@@ -299,6 +291,129 @@ Method \verb|add_vertex| without arguments adds a single vertex with the smalles
 \begin{outCell}
     ['a',7,0,1,2,3,4,5,6]
 \end{outCell}
+Note that in certain versions of Sage sorting of vertices by some methods (e.g. \verb|vertices|) is enabled by default and they may fail if the vertices are not comparable. To disable sorting use \verb|sort=False| option.
+
+To add multiple vertices use \verb|add_vertices| method.
+\begin{sageCell}
+    H=Graph({0:[1,2,3],4:[0,2],6:[1,2,3,4,5]})
+    H.add_vertices(range(10,20))
+    H.vertices()
+\end{sageCell}
+\begin{outCell}
+    [0,1,2,3,4,5,6,10,11,12,13,14,15,16,17,18,19]
+\end{outCell}
+
+To add one edge use \verb|add_edge| method, to add multiple edges use \verb|add_edges| method.
+\begin{sageCell}
+    H.add_edges([(0, i) for i in range(10, 20)])
+\end{sageCell}
+Note that edges can have labels. To add an edge with a label you need to pass a a triple $u,v,label$ as an argument to \verb|add_edge| method.
+\begin{sageCell}
+    H.add_edge(7,12,"EDGE")
+\end{sageCell}
+To plot a graph with edge labels use \verb|edge_labels=True| option.
+\begin{sageCell}
+    H.plot(edge_labels=True)
+\end{sageCell}
+\begin{outImage}
+    \includegraphics[width=0.5\linewidth]{Images/Introduction/output_add_edge.png}
+\end{outImage}
+Note that adding an existing vertex (edge) does not result in an error or a warning.
+
+To delete a vertex or and edge use \verb|delete_vertex| and \verb|delete_edge| methods, respectively.
+For example:
+\begin{sageCell}
+    H.delete_vertex(7)
+    H.delete_edge(0,10)
+\end{sageCell}
+Note that deleting a non-existing vertex results in an error while deleting a non-existing edge does not.
+
+\subsection{Directed graphs}
+
+Directed graph is represented using \verb|DiGraph| class.
+\begin{sageCell}
+    D = DiGraph({0:[1,2,3],4:[0,2],6:[1,2,3,4,5]})
+    D.plot()
+\end{sageCell}
+\begin{outImage}
+    \includegraphics[width=6cm]{Images/Introduction/output_digraph.png}
+\end{outImage}
+Most of the methods for \verb|Graph| class have their counterparts for \verb|DiGraph| class. For example, to add an edge use \verb|add_edge| method.
+\begin{sageCell}
+    D.add_edge(5,6)
+    D.plot()
+\end{sageCell}
+\begin{outImage}
+    \includegraphics[width=4.5cm]{Images/Introduction/output_digraph2.png}
+\end{outImage}
+
+Specific methods for \verb|DiGraph| class include \verb|in_degree| and \verb|out_degree| methods to get in-degree and out-degree of a vertex, respectively.  Similarly, in addition to \verb|neighbors| there are \verb|in_neighbors| and \verb|out_neighbors| methods.
+\begin{sageCell}
+    [D.in_degree(0),D.out_degree(0),degree(0)]
+\end{sageCell}
+\begin{outCell}
+    [1,3,4]
+\end{outCell}
+\begin{sageCell}
+    [D.in_neighbors(0),D.out_neighbors(0),D.neighbors(0)]
+\end{sageCell}
+\begin{outCell}
+    [[4],[1,2,3],[1,2,3,4]]
+\end{outCell}
+To check connectivity of a directed graph use \verb|is_strongly_connected| method.
+\begin{sageCell}
+    [D.is_connected(),D.is_strongly_connected()]
+\end{sageCell}
+\begin{outCell}
+    [True,False]
+\end{outCell}
+To convert a directed graph to an undirected graph use \verb|to_undirected| (or \verb|to_simple|) method.
+
+\subsubsection*{Even more general graphs}
+
+To allow multiple edges and/or loops use options \verb|multiedges=True| and \verb|loops=True| to the \verb|DiGraph| constructor. For example, consider the following graph.
+\begin{sageCell}
+    MG = DiGraph({},multiedges=True,loops=True)
+    MG.add_vertices([1,2])
+    MG.add_edges([(1,2),(1,2),(1, 2),(1,1),(1,1)])
+    MG
+\end{sageCell}
+\begin{outImage}
+    \includegraphics[width=7cm]{Images/Introduction/output_multigraph.png}
+\end{outImage}
+
+\subsection{Exercises}
+
+\begin{exercise}
+    Write a function \verb|remove_max_vertex(G)| which removes a vertex with the largest degree from undirected graph $G$ (any of them, if there are more than one with the largest degree).
+\end{exercise}
+\begin{exercise}
+    Write a function \verb|plot_bipartite| which plots a bipartite graph in a way that vertices of each bipartition are arranged on two parallel lines.
+\end{exercise}
+For example:
+\begin{sageCell}
+    HGR=graphs.HeawoodGraph()
+    plot_bipartite(HGR)
+\end{sageCell}
+\begin{outImage}
+    \includegraphics[width=0.4\linewidth]{Images/Introduction/output_bipartite.png}
+\end{outImage}
+
+\begin{exercise}
+    Write a function \verb`set_random_edge_labels(G,a,b)` which sets edge labels of $G$ to random integers from interval $[a, b]$.
+
+    Write a function \verb`mark_shortest_path(G,a,b)` which calculates a shortest path between the vertices $a$ and $b$ in the  weighted graph $G$ and colors it with red color. (For calculating shortest paths use built-in function \verb`shortest_path`.
+\end{exercise}
+Example:
+\begin{sageCell}
+    X=graphs.RandomGNP(20,0.2)
+    set_random_edge_labels(X,1,10)
+    mark_shortest_path(X,4,7)
+\end{sageCell}
+\begin{outImage}
+    \includegraphics[width=0.4\linewidth]{Images/Introduction/output_shortest_path.png}
+\end{outImage}
+
 
 
 
