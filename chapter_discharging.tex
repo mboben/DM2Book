@@ -1,0 +1,152 @@
+\chapter{3-coloring planar graphs without short cycles}
+
+\section{Introduction}
+
+The chromatic number $\chi(G)$ of a graph $G$ is the smallest number of colors that suffice to color the vertices of $G$ such that no two adjacent vertices have the same color.
+
+The well known Four Color Theorem states that for every planar graph is $\chi{G} \leq 4$.
+
+It is NP-hard to decide if $\chi(G) \leq 3$ if $G$ is planar, but:
+\begin{theorem}
+Let $G$ be a planar graph without cycles of lengths $4, \ldots, 11$. Then $\chi(G) \leq 3$.
+\end{theorem}
+
+\section{Discharging method}
+
+Discharging method idea (see \href{http://webdocs.cs.ualberta.ca/~mreza/talks/IPM-math06.pdf}{"Discharging method, by M. Salavatipour} for more details).
+
+\medskip
+\noindent If the theorem is not true and $G$ is a smallest counterexample, then there is:
+\begin{enumerate}
+    \item no vertex of degree $\leq 2$ and
+    \item no cutvertex.
+\end{enumerate}
+If we apply the following discharging method:
+\begin{enumerate}
+    \item assign a charge of $deg(v) - 6$ units to each vertex $v$ of $G$ and of $2 |f| - 6$ to each face $f$ of $G$ and
+    \item the rule for discharging is: each non-triangle face sends 3/2 units to each of its vertices
+\end{enumerate}
+then we come to a contradiction with the initial total charge of $-12$ and the final charge $\geq 0$. Thus, there is either a vertex of degree $\leq 2$ or a cutvertex in such graphs.
+
+This gives us an algorithm to color such graphs with 3 colors:
+\begin{enumerate}
+\item If we find a vertex of degree $\leq 2$ we can remove it, recursively color the rest of the graph and color the removed vertex with the color missing in its two neighbors.
+\item If we find a cutvertex, we split the graph into two (or more) blocks, recursively color the blocks, make sure that the removed vertex gets the same color in all blocks and color the removed vertex with that color.
+\end{enumerate}
+
+\section{Exercises}
+
+\begin{enumerate}
+    \item Write a function \verb|initial_charge(G)| which returns dicitionary with initial charges of vertices and faces.
+    \item Write a function \verb|discharge(G, c0)| which returns dictionary with charges after discharging was applied to the initial charges \verb|c0| (result of \verb|initial_charge(G)|).
+    \item Write a function \verb|plot_charge(G, c)| which plots vertices with green color if they have non-negative charge and with red color if they are negatively charged (\verb|c| is result of the function \verb|plot_charge(G, c)|).
+    \item Write a function \verb|three_color(G)| which implements the algorithm for three coloring of $G$ described above.
+\end{enumerate}
+You can use Sage built-in function \verb|blocks_and_cut_vertices| to find cutvertices and blocks.
+
+\section{Solutions}
+
+\begin{sageCell}
+    def faces(G):
+    """
+    Return faces (as "tuples" of vertices) of a planar graph G.
+    """
+    G.is_planar(set_embedding=True)
+    F = G.faces()
+    F = [tuple(x for (x, y) in f) for f in F]
+    return F
+
+def initial_charge(G):
+    """
+    Return a dictionary of charges for each vertex and face
+    """
+    F = faces(G)
+    c = {}
+    for v in G.vertices():
+        c[v] = G.degree(v) - 6
+    for f in F:
+        c[f] = 2 * len(f) - 6
+    return c
+
+def discharge(G, c0):
+    """
+    Return a dictionary of charges for each vertex and face after discharging initial charges c0
+    """
+    c = c0.copy()
+    F = faces(G)
+    for f in F:
+        if len(f) > 3:
+            for v in f:
+                c[v] += 3/2
+                c[f] -= 3/2
+    return c
+
+def plot_colored_charges(G, c):
+    """
+    Plot negatively charged vertices of G with red and non-negatively charged vertices of G with green;
+    according to charges given by the dictionary c
+    """
+    v_pos = [v for v in G.vertices() if c[v] >= 0]
+    v_neg = [v for v in G.vertices() if c[v] < 0]
+    return G.plot(vertex_colors = {'green': v_pos, 'red': v_neg}, vertex_size=20, vertex_labels=False)
+\end{sageCell}
+
+\begin{sageCell}
+    def three_color(G):
+    '''
+    Return 3 coloring of planar graph G without cycles of length 4, ..., 11.
+    Coloring is represented as a dicitionary mapping a vertex to one of the colors 0, 1, 2.
+    '''
+    if G.num_verts() == 1:
+        return {G.vertices()[0]: 0}
+
+    G = G.copy()
+
+    # find a cutvertex
+    blocks, c_vertices = G.blocks_and_cut_vertices()
+    if len(c_vertices) > 0:
+        cutv = c_vertices[0]
+        nbs = G.neighbors(cutv)
+        result = dict()
+        G.delete_vertex(cutv)
+        for C in G.connected_components_subgraphs():
+            # color subgraphs such that cutv has color 0
+            c = three_color_cv(C, cutv, nbs)
+            for v, color in c.items():
+                result[v] = color
+        return result
+
+    # find a vertex of degree <= 2
+    v = min(G.vertices(), key=lambda v: G.degree(v))
+    if G.degree(v) <= 2:
+        nbs = G.neighbors(v)
+        G.delete_vertex(v)
+        c = three_color(G)
+        freec = list(set([0, 1, 2]) - set([c[u] for u in nbs]))
+        c[v] = freec[0]
+        return c
+    raise Exception('No substructure')
+
+# color G such that cutv has color 0
+def three_color_cv(G, cutv, cutvnbs):
+    gverts = set(G.vertices())
+    G = G.copy()
+    G.add_vertex(cutv)
+    for u in cutvnbs:
+        if u in gverts:
+            G.add_edge(cutv, u)
+    c = three_color(G)
+    cvc = c[cutv] # color of cut vertex, we will change colors such that cvc will be 0
+    if cvc == 0:  # ok, cut vertex has color 0
+        return c
+    cr = dict()
+    # switch colors 0 and cvc
+    for v, col in c.items():
+        if col == cvc:  # color cvc -> color 0
+            cr[v] = 0
+        elif col == 0: # color 0 -> color cvc
+            cr[v] = cvc
+        else:
+            cr[v] = col
+    return cr
+\end{sageCell}
