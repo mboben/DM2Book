@@ -1,0 +1,102 @@
+\chapter{Maximum independent set}
+
+Write a function \verb`max_independent_set(G, T, B)` which computes a maximum independent set of a graph $G$ with a nice tree decomposition $(T, B)$ (see previous chapter). Algorithm should perform well on graphs with small tree width.
+
+\subsection*{Solution}
+
+\begin{sageCell}
+def max_independent_set(G, DT, r, B):
+    """Returns maximal independent set of graph G with nice tree decomposition DT, r, B (directed tree with root r and
+    bucket map B)"""
+    maxI = None
+    MEM = {}  # Memorize all results of max_independent_set_rec
+    # Dictionary of independent sets for all bags
+    rsets = independent_sets(G, B[r])
+    # Take maximum over all possible independent sets of the root bag
+    for S in rsets:
+        IS = max_independent_set_rec(G, DT, B, r, S, MEM)
+        if IS != None:
+            if maxI == None or len(IS) > len(maxI):
+                maxI = IS
+    return maxI
+
+def max_independent_set_rec(G, DT, B, t, S, MEM):
+    """Returns the largest independent set of the subgraph of G induced on bags below (including) t
+    which contains all vertices from S (More precisely, vertices of this independent set from B[t] are exactly vertices S).
+    Parameters:
+      G        graph
+      (DT, B)  tree decomposition with tree directed towards the root
+      t        tree vertex
+      S        a independent set of bag B[t]"""
+    if (t, tuple(S)) in MEM:
+        return MEM[(t, tuple(S))]  # If we already calculated the result
+    result = None
+    sons = DT.neighbors_in(t)
+    Bt = B[t]
+    if len(sons) == 0: # leaf, len(Bt) == 1
+        return S
+    elif len(sons) == 1:
+        s = sons[0]
+        Bs = B[s]
+        if len(Bs) > len(Bt): # t is forget node
+            u = list(Bs - Bt)[0]  # len(diff) = 1
+            result = max_independent_set_rec(G, DT, B, s, S, MEM)
+            Su = S | set([u])
+            if is_independent_set(G, Su):
+                result2 = max_independent_set_rec(G, DT, B, s, Su, MEM)
+                if len(result2) > len(result):
+                    result = result2
+        else: # len(Bs) < len(Bt) - t is introduce node
+            u = list(Bt - Bs)[0]  # len(diff) = 1
+            Su = S - set([u])
+            result = max_independent_set_rec(G, DT, B, s, Su, MEM)
+    elif len(sons) == 2:  # join node
+        s1 = sons[0]
+        s2 = sons[1]
+        result1 = max_independent_set_rec(G, DT, B, s1, S, MEM)
+        result2 = max_independent_set_rec(G, DT, B, s2, S, MEM)
+        result = result1 | result2
+    else:
+        # should not happen
+        return None
+    result = result | S
+    MEM[(t, tuple(S))] = result  # Memorize the result
+    return result
+\end{sageCell}
+Auxilliary function:
+\begin{sageCell}
+def independent_sets(G, X):
+    """Returns all independent sets of the subgraph of G induced on the set X; exhaustive search, suitable for small X"""
+    if len(X)==0:
+        return [set([])]
+    else:
+        X1 = copy(X)
+        X2 = copy(X)
+        v = X1.pop()
+        X2.remove(v)
+        Nv = [w for w in G.neighbors(v) if w in X]
+        for w in Nv:
+            X2.remove(w)
+        C1 = independent_sets(G, X1)
+        C2 = independent_sets(G, X2)
+        C2 = [i.union([v]) for i in C2]
+        return C1 + C2
+\end{sageCell}
+
+\subsection*{Tests}
+
+\begin{sageCell}
+def is_independent_set(G, X):
+    return G.subgraph(X).num_edges() == 0
+\end{sageCell}
+
+\begin{sageCell}
+    G1 = Graph('XTnNw?DOYHgJ@BP@g`wG^PAoa?@C?G??Ga?EG_@oC?NcO?}???P')
+    T1, r1, B1 = nice_tree_decomposition(G1)
+    MI1 = max_independent_set(G1, T1, r1, B1)
+    (is_independent_set(G1, MI1), len(MI1)) == (True, 7)
+\end{sageCell}
+\begin{outCell}
+    True
+\end{outCell}
+

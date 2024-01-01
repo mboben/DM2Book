@@ -1,0 +1,96 @@
+\chapter{Stable matchings}
+
+Write function \verb`stable_matchings(F, M)`' which implements stable matchings algorithm. $F$ is a dictionary of priority lists of women and $M$ is a dictionary of priority lists of men. It should return a list of "matching" pairs (female, male).
+
+\medskip
+\noindent \textbf{Algorithm:}
+\begin{verbatim}
+while exists a woman f who is not engaged and has not proposed
+to all men do:
+    f proposes to her best candidate m, whom she has not yet proposed to;
+    if m is not engaged then
+        f and m engage to be married
+    else if m prefers f to his current fiancee f' then
+        f' and m break up their engagement
+        f and m engage to be married
+    return M
+\end{verbatim}
+
+\section{Solution and tests}
+
+\begin{sageCell}
+def stable_matchings(F, M):
+    """
+    F is a dictionary woman -> list of men sorted by the priorities
+    M is a dictionary man -> list of women sorted by the priorities
+    return a list of matching pairs (f, m)
+    """
+    FL = dict([(f, l[:]) for (f, l) in F.items()]) # for every woman a list of men left to propose, sorted by priority
+    ML = dict([(m, l[:]) for (m, l) in M.items()])
+    unmatchedF = list(FL.keys())
+    FM = {}
+    MM = {}
+    while len(unmatchedF) > 0:
+        f = unmatchedF.pop(0)
+        fL = FL[f]
+        if len(fL) == 0:
+            continue
+        m = fL.pop(0)
+        if not m in MM:
+            MM[m] = f
+            FM[f] = m
+        elif ML[m].index(f) < ML[m].index(MM[m]):
+            fx = MM[m]
+            MM[m] = f
+            FM[f] = m
+            del FM[fx]
+            unmatchedF.append(fx)
+        else:
+            unmatchedF.append(f)
+    return list(FM.items())
+\end{sageCell}
+
+\begin{sageCell}
+def is_matching_stable(match, F, M):
+    for f, m in match:
+        fList = F[f]
+        mi = fList.index(m)
+        for i in range(0, mi):
+            altm = fList[i]
+            altmList = M[altm]
+            altmCurrent = next(f for (f, m) in match if m == altm)
+            altmCurrentRank = altmList.index(altmCurrent)
+            altmFRank = altmList.index(f)
+            if altmFRank < altmCurrentRank:
+                print(f"Pair {f}-{m} is not stable, {f}-{altm} violates stable marriage condition")
+                return False
+    return True
+\end{sageCell}
+
+\begin{sageCell}
+    F = {1: [4, 1, 3, 2], 2: [3, 1, 2, 4], 3: [4, 3, 2, 1], 4: [4, 3, 2, 1]} # e.g, woman 1 prefers man 4 over all other men (he is the first in her list)
+    M = {1: [2, 3, 1, 4], 2: [4, 3, 1, 2], 3: [1, 2, 3, 4], 4: [1, 2, 3, 4]} # e.g, man 1 prefers woman 2 over all other women (she is the first in his list)
+\end{sageCell}
+
+\begin{sageCell}
+    match = stable_matchings(F, M)
+    match
+\end{sageCell}
+\begin{outCell}
+    [(1, 4), (2, 3), (4, 2), (3, 1)]
+\end{outCell}
+
+\begin{sageCell}
+    is_matching_stable(match, F, M)
+\end{sageCell}
+\begin{outCell}
+    True
+\end{outCell}
+
+\begin{sageCell}
+    is_matching_stable([(1, 2), (2, 3), (4, 4), (3, 1)], F, M)
+\end{sageCell}
+Pair 1-2 is not stable, 1-4 violates stable marriage condition
+\begin{outCell}
+    False
+\end{outCell}
