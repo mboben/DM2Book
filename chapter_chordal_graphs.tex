@@ -1,23 +1,20 @@
 \chapter{Chordal graphs}
 
+\section{Introduction}
+
 A graph $G$ is chordal, if it does not contain an induced cycle of length $\geq 4$. Equivalently, if every cycle $C$ of length $\geq 4$ in $G$ contains a chord.
-
-\section{Recognition of chordal graphs}
-
 
 A \emph{perfect elemination ordering} is an ordering $v_1, v_2, \dots, v_n$ of vertices of $G$ so that $v_i$ is \emph{simplicial vertex} in $G[v_{i}, v_{i+1}, \dots, v_n]$, i.e., $v_i$ and neighbors after it in the ordering form a clique.
 
 A graph $G$ is chordal if and only if it admits a perfect elimination ordering.
 
-\section{Exercises}
+\section{Implementation}
 
 \begin{enumerate}
 \item Implement \verb`max_cardinality_search(G)` which returns PEO of $G$ using maximal cardinality search algorithm (see \href{http://matematika.fri.uni-lj.si/dm/discrete_mathematics.pdf}{Lecture notes}, Algorithm 7.1.).
 \item Write function \verb`is_chordal(G)` which checks if graph $G$ is chordal. Use algorithm 7.2 from Lecture notes. See also comments in the code below.
 \item Write function \verb`color_chordal_graph(G)` which returns minimal (optimal) coloring of chordal graph $G$. See Lecture notes.
 \end{enumerate}
-
-\section{Solutions}
 
 \begin{sageCell}
 def max_cardinality_search(G):
@@ -79,7 +76,7 @@ def color_chordal_graph(G):
     return col
 \end{sageCell}
 
-\section{Examples}
+\subsection*{Examples}
 
 \begin{sageCell}
 def random_chordal_graph(n, kmin = 5, kmax = 10, kidmin = 2, kidmax = 4):

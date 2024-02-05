@@ -1,5 +1,7 @@
 \chapter{Stable matchings}
 
+\section{Introduction}
+
 Write function \verb`stable_matchings(F, M)`' which implements stable matchings algorithm. $F$ is a dictionary of priority lists of women and $M$ is a dictionary of priority lists of men. It should return a list of "matching" pairs (female, male).
 
 \medskip
@@ -16,7 +18,7 @@ to all men do:
     return M
 \end{verbatim}
 
-\section{Solution and tests}
+\section{Implementation}
 
 \begin{sageCell}
 def stable_matchings(F, M):

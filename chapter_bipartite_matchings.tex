@@ -1,10 +1,12 @@
 \chapter{Matchings and covers in bipartite graphs}
 
+\section{Introduction}
+
 Given a graph $G = (V,E)$, a \emph{matching} $M$ in $G$ is a set of pairwise non-adjacent edges; that is, no two edges share a common vertex. A \emph{maximum matching} is a matching that contains the largest possible number of edges.
 
 A (\emph{vertex}) \emph{cover} $C$ in $G$ is a set of vertices such that for every edge $uv \in E$, either $u \in C$ or $v \in C$. A \emph{minimum cover} is a cover of the smallest possible size.
 
-\subsection*{Algorithm for bipartite graphs}
+\subsection{Algorithm for bipartite graphs}
 
 Maximum matching (and minumum cover) in bipartite graphs can be found in polynomial time using Max-Flow-Min-Cut algorithm (Ford Fulkerson).
 
@@ -30,7 +32,7 @@ The reverse is also true, any matching $M$ produces a flow from $s$ to $t$ with 
 
 What about min cut. The set $C$ from 7 is a cover, since every edge with endpoint in $A \cap T$ is covered and also every edge with endpoint in $B \cap S$ is covered. The only uncovered edges would be edges between $A \cap S$ and $B \cap T$, but that edges would be part of the cut, and since their capacity is infinity, min cut would have infinite value. This is clearly not possible since a trivial cut $S = \{s\}, T = A \cup B \cup \{t\}$ is clearly finite ($|A|$). The other way is also easy to see. For every cover of $G$ you can construct a cut of $G^+$ of the form in 7. See this (http://\url{www.cs.toronto.edu/~siavosh/csc373h/files/TN6.pdf} for more detailed explanation.
 
-\subsection{Exercise}
+\subsection{Implementation}
 
 Write functions \verb`max_bipartite_matching(G)` and \verb`min_bipartite_cover(G)` which return maximum matching and minimum cover in bipartite graph $G$. You can use Sage functions \href{http://doc.sagemath.org/html/en/reference/graphs/sage/graphs/generic_graph.html#sage.graphs.generic_graph.GenericGraph.flow}{flow} and \href{http://doc.sagemath.org/html/en/reference/graphs/sage/graphs/generic_graph.html#sage.graphs.generic_graph.GenericGraph.edge_cut}{edge cut} to obtain max flow and min cut, respectively.
 

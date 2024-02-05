@@ -34,7 +34,7 @@ This gives us an algorithm to color such graphs with 3 colors:
 \item If we find a cutvertex, we split the graph into two (or more) blocks, recursively color the blocks, make sure that the removed vertex gets the same color in all blocks and color the removed vertex with that color.
 \end{enumerate}
 
-\section{Exercises}
+\subsection{Exercises}
 
 \begin{enumerate}
     \item Write a function \verb|initial_charge(G)| which returns dicitionary with initial charges of vertices and faces.
@@ -44,7 +44,7 @@ This gives us an algorithm to color such graphs with 3 colors:
 \end{enumerate}
 You can use Sage built-in function \verb|blocks_and_cut_vertices| to find cutvertices and blocks.
 
-\section{Solutions}
+\subsection*{Solutions}
 
 \begin{sageCell}
     def faces(G):
