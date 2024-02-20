@@ -1,6 +1,6 @@
-# Discrete Mathematics 2
+# Discrete Mathematics
 
-Exercises for Discrete Mathematics 2 a course at the Faculty of Computer and Information Science, University of Ljubljana.
+Exercises for Discrete Mathematics a course at the Faculty of Computer and Information Science, University of Ljubljana.
 
 Gradiva za vaje iz diskretne matematike 2, predmet na Fakulteti za računalništvo in informatiko Univerze v Ljubljani.
 
