@@ -2,7 +2,7 @@
 
 Exercises for Discrete Mathematics a course at the Faculty of Computer and Information Science, University of Ljubljana.
 
-Gradiva za vaje iz diskretne matematike 2, predmet na Fakulteti za računalništvo in informatiko Univerze v Ljubljani.
+Gradiva za vaje iz diskretne matematike, predmet na Fakulteti za računalništvo in informatiko Univerze v Ljubljani.
 
 [Link](https://github.com/mboben/DM2Book/blob/build/main.pdf) to the book.
 
